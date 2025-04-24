@@ -1,4 +1,5 @@
 package Anagramas
+
 object Package {
 
 
@@ -20,11 +21,9 @@ object Package {
     lOcPal(f.mkString)
   }
 
-  //lazy val diccionarioPorOcurrencias: Map[Ocurrencias, List[Palabra]] = {
-  //  diccionario.groupBy(palabra => lOcPal(palabra))
-  //}
+
   lazy val diccionarioPorOcurrencias: Map[Ocurrencias, List[Palabra]] = {
-    diccionario.groupBy(x => lOcPal(x).toSet).map(xy => (xy._1.toList, xy._2))
+    diccionario.groupBy(lOcPal).withDefaultValue(List())
   }
 
   def anagramasDePalabra(pal: Palabra): List[Palabra] = {
@@ -57,35 +56,22 @@ object Package {
   }
 
   def anagramasDeFrase(frase: Frase): List[Frase] = {
-    def aux(ocurrencias: Ocurrencias): List[Frase] = {
-      if (ocurrencias.isEmpty) List(Nil)
-      else {
-        for {
-          combinacion <- combinaciones(ocurrencias)
-          palabras <- diccionarioPorOcurrencias.getOrElse(combinacion, Nil)
-          resto <- aux(complemento(ocurrencias, combinacion))
-        } yield palabras :: resto
-      }
-    }
+    val ocurrencias = lOcFrase(frase)
 
-    aux(lOcFrase(frase))
-  }
-
-  /*
-  def anagramasDeFrase(frase: Frase): List[Frase] = {
-    def auxiliar(oc: Ocurrencias): List[Frase] = {
+    def generarAnagramas(oc: Ocurrencias): List[Frase] = {
       if (oc.isEmpty) List(Nil)
       else {
         for {
           combo <- combinaciones(oc)
           if combo.nonEmpty
-          palabras <- diccionarioPorOcurrencias.getOrElse(combo, Nil)
-          resto <- auxiliar(complemento(oc, combo))
-        } yield palabras :: resto
+          palabra <- diccionarioPorOcurrencias(combo.sortBy(_._1))
+          resto <- generarAnagramas(complemento(oc, combo).sortBy(_._1))
+        } yield palabra :: resto
       }
     }
 
-    auxiliar(lOcFrase(frase))
-  }*/
+    generarAnagramas(ocurrencias).distinct
+  }
 
 }
+

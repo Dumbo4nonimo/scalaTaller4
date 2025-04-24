@@ -44,10 +44,10 @@ combinaciones(List())  // List(List())
 
 // Casos para anagramasDeFrase
 anagramasDeFrase(List("verde", "rojo"))  // Variaciones que formen las mismas ocurrencias (según diccionario)
-anagramasDeFrase(List("ropa", "ver"))    // Ej: List(List("ropa", "ver"), List("paro", "ver"))
+anagramasDeFrase(List("ropa", "ver"))    // List(List("ropa", "ver"), List("paro", "ver"))
 anagramasDeFrase(List("de", "rep"))      // List(List("de", "rep"), ...)
 anagramasDeFrase(List("perro"))          // List(List("perro"))
-anagramasDeFrase(List("ver", "rojo", "de")) // List of frases anagramas válidas según el diccionario
+anagramasDeFrase(List("ver", "rojo", "de")) // lista de frases anagramas (se consideran los valores repetidos y en diferente orden)
 
 
 
