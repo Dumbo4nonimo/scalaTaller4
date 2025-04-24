@@ -5,7 +5,10 @@ object Package {
   type Palabra = String
   type Ocurrencias = List[(Char, Int)]
   type Frase = List[String]
-  val diccionario = List("roma", "amor", "ramo", "mora", "aroma", "bar")
+  // Datos base
+  val diccionario: List[String] = List(
+    "roma", "amor", "mora", "ramo", "rojo", "joro", "verde", "ver", "de", "red", "perro", "rep", "ropa", "paro"
+  )
 
   def lOcPal(p: Palabra): Ocurrencias = {
     (for {
@@ -17,8 +20,11 @@ object Package {
     lOcPal(f.mkString)
   }
 
+  //lazy val diccionarioPorOcurrencias: Map[Ocurrencias, List[Palabra]] = {
+  //  diccionario.groupBy(palabra => lOcPal(palabra))
+  //}
   lazy val diccionarioPorOcurrencias: Map[Ocurrencias, List[Palabra]] = {
-    diccionario.groupBy(palabra => lOcPal(palabra))
+    diccionario.groupBy(x => lOcPal(x).toSet).map(xy => (xy._1.toList, xy._2))
   }
 
   def anagramasDePalabra(pal: Palabra): List[Palabra] = {
@@ -38,37 +44,48 @@ object Package {
     resultado
   }
 
+  def complemento(lista: Ocurrencias, subLista: Ocurrencias): Ocurrencias = {
+    val mapaSubLista = subLista.toMap
+    val resultado = for {
+      (char, cantlista) <- lista
+      cantSubLista = mapaSubLista.getOrElse(char, 0)
+      nuevaCant = cantlista - cantSubLista
+      if nuevaCant > 0
+    } yield (char, nuevaCant)
 
-
-
-  def main(args: Array[String]): Unit = {
-    println(lOcPal("penetreitor")) //Se espera: List(('a',2), ('c',1), ('l',1), ('s',1))
-    println("---------------------")
-    println(lOcFrase(List("Hola", "Scala"))) //Junta todas las palabras y las vuelve ocurrencias
-    println("---------------------")
-    val ocs1 = lOcPal("amor")
-    println(diccionarioPorOcurrencias(ocs1)) //No busca con palabras sino con ocurrencias
-    println("---------------------")
-    println(anagramasDePalabra("aroma")) //porque cada palabra es anagrama de si mismo
-    println(anagramasDePalabra("concha")) //ni siquiera debe aparecer entoces es vacio
-    print(anagramasDePalabra("amor")) //aqui si aparecen varios
-    println("---------------------")
-    val entrada = List(('a', 2), ('b', 2))
-    val resultado = combinaciones(entrada)
-    resultado.foreach(println)
-    println("---------------------")
-    val entrada2 = List(('m', 1), ('n', 1), ('o', 1))
-    val resultado2 = combinaciones(entrada2)
-    resultado2.foreach(println)
-    println("---------------------")
-
-
-
-
-    //nota: anagramasDePalabra es parecido a lazy pero no te dejes engañar, tienen diferencias
-
-
+    resultado.sortBy(_._1)
   }
 
+  def anagramasDeFrase(frase: Frase): List[Frase] = {
+    def aux(ocurrencias: Ocurrencias): List[Frase] = {
+      if (ocurrencias.isEmpty) List(Nil)
+      else {
+        for {
+          combinacion <- combinaciones(ocurrencias)
+          palabras <- diccionarioPorOcurrencias.getOrElse(combinacion, Nil)
+          resto <- aux(complemento(ocurrencias, combinacion))
+        } yield palabras :: resto
+      }
+    }
+
+    aux(lOcFrase(frase))
+  }
+
+  /*
+  def anagramasDeFrase(frase: Frase): List[Frase] = {
+    def auxiliar(oc: Ocurrencias): List[Frase] = {
+      if (oc.isEmpty) List(Nil)
+      else {
+        for {
+          combo <- combinaciones(oc)
+          if combo.nonEmpty
+          palabras <- diccionarioPorOcurrencias.getOrElse(combo, Nil)
+          resto <- auxiliar(complemento(oc, combo))
+        } yield palabras :: resto
+      }
+    }
+
+    auxiliar(lOcFrase(frase))
+  }*/
 
 }
